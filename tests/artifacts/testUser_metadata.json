@@ -1,0 +1,84 @@
+{
+	"compiler": {
+		"version": "0.8.18+commit.87f61d96"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"name": "beforeAll",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "testAddUser",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"tests/testUser.sol": "testUser"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/User.sol": {
+			"keccak256": "0x4affcac78fe9013263ff22e9fdd6a49b5a4c5afcd470c372c68046c86b2a5df8",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ea07f1561015cc7ca4dd9e16894a6928bc0800dcdc6a5eb555bfa0f7c0f026f8",
+				"dweb:/ipfs/Qmci8PCXyJ26ZB3bmh4TtZ2P8Y2tqdRqq1GrdUZhNG9Dbg"
+			]
+		},
+		"remix_accounts.sol": {
+			"keccak256": "0x722e8fd271de98c2d980bda8e3d011551d9641355216b1029084b455c4c2a662",
+			"license": "GPL-3.0",
+			"urls": [
+				"bzz-raw://8e57585c7061065613c796706efdae0c79a416bde447ccbe4ffaf969aeb7423e",
+				"dweb:/ipfs/QmdQCAgvob9suV3UwSR2rRetyU9fafTtEi2sDv9oRmRSLo"
+			]
+		},
+		"remix_tests.sol": {
+			"keccak256": "0xe2783cdc204cba8c72494119339f1d90f9022b15d6c718c668b7f097d8e29787",
+			"license": "GPL-3.0",
+			"urls": [
+				"bzz-raw://bb6a22e64c7f16bcaab63b1c1a1b269d5be8a6d37bdd9dec1718477ab916b18e",
+				"dweb:/ipfs/QmdkW1tT5iadBvaHMCoskhDGZKnfdg8o1D9CcoQYtdJet7"
+			]
+		},
+		"tests/testUser.sol": {
+			"keccak256": "0x000500fb0113b966deaa2a5f790015833fb6074e674a88dc57cc8da69f11868c",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c9210c81bfa5b87e9d4c559db9da0fe6184f626f0b65512c4a59f3ff46e6570d",
+				"dweb:/ipfs/QmcdfPA9cXJZ92w6cgNWFGkHFFhz4CeLCu4v3mBZCD7SMD"
+			]
+		}
+	},
+	"version": 1
+}
