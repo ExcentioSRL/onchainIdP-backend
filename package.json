@@ -36,7 +36,9 @@
     "helmet": "^7.0.0",
     "mongoose": "^6.3.3",
     "swagger-ui-express": "^4.6.3",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "@openzeppelin/contracts": "^4.8.2",
+    "truffle": "^5.9.0"
   },
   "devDependencies": {
     "@types/cron": "^2.0.0",
