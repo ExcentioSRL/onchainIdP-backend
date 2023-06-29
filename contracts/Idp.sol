@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity ^0.8.19;
+
+
+import "./Excentio.sol";
 
 /*
     Questo contratto è per l'utente:
@@ -12,7 +15,16 @@ pragma solidity >=0.4.22 <0.9.0;
               dopodichè il backend produrrà un jwt e farà il reindirizzamento alla piattaforma.
             – non dovesse dare esito positivo verrà mostrato a schermo un popup di errore
 */
-contract User{
+contract Idp {
+
+    Excentio public tokenExc;
+
+    // receive address during deployment script
+    constructor(Excentio tokenExcImport) {
+        tokenExc = tokenExcImport;
+    }
+
+    /* ------------------ INIZIO PARTE USER ------------------ */
 
     struct PlatformStruct{
         string platformName;
@@ -68,5 +80,30 @@ contract User{
     function getUserData(address userAddress) public view returns(address userAddr, uint balance){ 
         return  (userData[userAddress].userAddr, userData[userAddress].balance);
     }
+
+    /* ------------------ FINE PARTE USER ------------------ */
+
+    /* ------------------ INIZIO PARTE NOLEGGIO ------------------ */
+
+    //userRentAddress: rappresenta l'indirizzo dell'utente che darà a noleggio il suo account
+    //userDestAddress: rappresenta l'indirizzo dell'utente che noleggerà l'account di userRentAddress
+    // function rentAccount(address userRentAddress, address userDestAddress, uint rentalEndDatetime, uint cost) public view {
+    //     tokenExc.balanceOf(userDestAddress);
+    // }
+
+    function testBalance(address userDestAddress) public view returns (uint256 balance){
+        return tokenExc.balanceOf(userDestAddress);
+    }
+
+    function testTransfer(address spender, address to) public returns (bool result){
+        if(tokenExc.increaseAllowance(spender,  5 * (10 ** 18)))
+           return tokenExc.transfer(to, 2 * (10 ** 18));
+    }
+
+    function getAllowance(address owner) public returns (bool) {
+       return tokenExc.increaseAllowance(owner, 100);
+    }
+
+    /* ------------------ FINE PARTE NOLEGGIO ------------------ */
 
 }
