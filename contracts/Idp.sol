@@ -91,17 +91,32 @@ contract Idp {
     //     tokenExc.balanceOf(userDestAddress);
     // }
 
-    function testBalance(address userDestAddress) public view returns (uint256 balance){
+    function testName() public view returns (string memory){
+        return tokenExc.name();
+    }
+
+    function testBalance(address userDestAddress) public view returns (uint256 ){
         return tokenExc.balanceOf(userDestAddress);
     }
 
-    function testTransfer(address spender, address to) public returns (bool result){
-        if(tokenExc.increaseAllowance(spender,  5 * (10 ** 18)))
-           return tokenExc.transfer(to, 2 * (10 ** 18));
+    function testTransfer(address from, address to, uint256 amount) public returns (bool){
+        return tokenExc.transferFrom(from, to, amount);
     }
 
-    function getAllowance(address owner) public returns (bool) {
-       return tokenExc.increaseAllowance(owner, 100);
+    function allowanceTest(address owner, address spender) public view returns (uint){
+        return tokenExc.allowance(owner, spender);
+    }
+
+    function increaseAllowanceTest(address spender, uint256 amount) public returns (bool){
+        return tokenExc.increaseAllowance(spender,amount);
+    }
+ 
+    function approveTest( address spender, uint256 amount) public returns (bool){
+        return tokenExc.approve(spender, amount);
+    }
+
+    function totalSupply() public view returns (uint256) {
+        return tokenExc.totalSupply();
     }
 
     /* ------------------ FINE PARTE NOLEGGIO ------------------ */
