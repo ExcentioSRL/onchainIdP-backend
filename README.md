@@ -46,7 +46,9 @@ Ora abbiamo un progetto hardhat
 
 Per creare il token copiate e incollate quello che c'è in **Excentio.sol**, potete cambiare il nome del token e il simbolo dentro il costruttore di ERC20.
 
-**Qui mettere spiegazione del contratto del token**
+All'interno del glossario trovate alcune definizioni quali: Token, ERC20, ERC20Capped, ERC20Burnable, off-chain.
+La spiegazione del token è all'interno del contratto. Viene spiegata ogni funzione, per ulteriori chiarimenti guardare:
+[Documentazione openzeppelin](https://docs.openzeppelin.com/contracts/4.x/api/token/erc20)
 
 ## Test token con unit test
 

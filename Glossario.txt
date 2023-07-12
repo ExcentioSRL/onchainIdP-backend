@@ -1,0 +1,12 @@
+Token: Unità digitale di valore, può essere una criptovaluta o un altro tipo di bene basato su crittografia. 
+       Se una criptovaluta è un token, significa che è di proprietà di un progetto, ma è basata su una blockchain esterna al progetto.
+
+ERC20: sigla che indica lo standard tecnico degli smart contract di Ethereum, definisce un elenco di regole comuni per i token basati su Ethereum.
+
+ERC20Capped: aggiunge  un limite alla fornitura di token, il cap viene dato in input al costruttore
+    
+ERC20Burnable: Estensione di ERC20 che consente ai detentori di token di distruggere sia i propri token che quelli per i quali hanno un'autorizzazione, 
+               in un modo che può essere riconosciuto off-chain (attraverso l'analisi degli eventi).
+
+off-chain: processo o transazione eseguita fuori dalla blockchain, 
+               non beneficiano dunque dell’immutabilità e decentralizzazione intrinseche alla blockchain
