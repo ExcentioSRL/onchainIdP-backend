@@ -51,7 +51,7 @@ describe("Excentio contract", function () {
       const tokensAmount2 = hre.ethers.parseUnits(amount2.toString(), 18);
 
       await idpContract
-        .connect(addr1)
+        .connect(addr2)
         .transferFrom(addr1.address, addr2.address, tokensAmount2);
 
       let addr2Balance = Number(
