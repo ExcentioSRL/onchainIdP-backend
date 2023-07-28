@@ -7,11 +7,18 @@
 const hre = require("hardhat");
 
 async function main() {
+  /* deploy token */
   const exc = await hre.ethers.deployContract("Excentio", [10000000, 50]);
-
   await exc.waitForDeployment();
-  const address = await exc.getAddress();
-  console.log(`EXC deployed at ${address}`);
+  const addressExc = await exc.getAddress();
+
+  /* deploy idp */
+  const idp = await hre.ethers.deployContract("Idp", [addressExc]);
+  await idp.waitForDeployment();
+  const addressIdp = await idp.getAddress();
+
+  console.log(`EXC deployed at ${addressExc}`);
+  console.log(`Idp deployed at: ${addressIdp}`);
 }
 
 main().catch((error) => {
