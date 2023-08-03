@@ -6,7 +6,7 @@ module.exports = {
   solidity: "0.8.18",
   networks: {
     hardhatNet: {
-      url: "HTTP://127.0.0.1:8545",
+      url: process.env.PROVIDER_URL,
       accounts: [process.env.PRIVATE_KEY],
       chainId: 31337,
     },
