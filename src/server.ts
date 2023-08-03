@@ -21,7 +21,7 @@ const API_DEFAULT_PREFIX = "/api/v1/";
  * @todo Change the constants below following your API requirements
  */
 const SWAGGER_TITLE = "BE Tesi";
-const SWAGGER_DESCRIPTION = "API used for CRUD on BE DB";
+const SWAGGER_DESCRIPTION = "API used for CRUD on TESI DB";
 const SWAGGER_PREFIX = "/docs";
 
 /**
