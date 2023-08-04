@@ -2,6 +2,8 @@ import { Module } from "@nestjs/common";
 import { ScheduleModule } from "@nestjs/schedule";
 import { MongooseModule } from "@nestjs/mongoose";
 import { CommonModule } from "./common";
+import { PlatformModule } from "./platform/platform.module";
+
 
 @Module({
     imports: [
@@ -10,7 +12,7 @@ import { CommonModule } from "./common";
         MongooseModule.forRoot(process.env.MONGO_URI!, {
             connectionName: "default",
         }),
-
+        PlatformModule
     ],
 })
 export class ApplicationModule { }

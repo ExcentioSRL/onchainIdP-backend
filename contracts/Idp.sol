@@ -255,5 +255,10 @@ contract Idp {
         tokenExc.transfer(to, amount);
     }
 }
-
+/*
+    da usare su remix:
+    chi ha deployato il contratto: 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4 --> lui ha 7mln di exc
+    indirizzo contratto: 0x3c725134d74D5c45B4E4ABd2e5e2a109b5541288 --> lui può spendere 7mln di exc
+    indirizzo secondo utente: 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2 --> lui ha 0 per il momento
+*/
 
