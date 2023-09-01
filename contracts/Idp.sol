@@ -14,11 +14,23 @@ import "./Excentio.sol";
               dopodichè il backend produrrà un jwt e farà il reindirizzamento alla piattaforma.
             – non dovesse dare esito positivo verrà mostrato a schermo un popup di errore
 */
+
+
 contract Idp {
+    /* ------------- INIZIO EVENTI PER DEBUG ------------ */
+    event CheckNumber(uint number);
+    
+    event CheckString(string response);
 
+    event CheckUser(address indirizzo, uint numeroPiattaforme);
+    
+    event CheckPlatform(uint uuid, bool isValid);
+      
+    /* ------------- FINE EVENTI PER DEBUG ------------ */
+
+
+    /* -------------- INIZIO  VARIABILI -------------- */
     Excentio private tokenExc;
-
-    /* ------------------ INIZIO PARTE USER ------------------ */
 
     struct PlatformStruct{
         string uuid;
@@ -36,10 +48,6 @@ contract Idp {
         string platformId;
     }
 
-    /* 
-        La UserData definisce:
-            platforms: array di tutte le piattaforme associate all'utente
-     */
     struct UserData{
         address userAddr;
         uint platformNumber;
@@ -75,24 +83,50 @@ contract Idp {
    
     mapping(address => KeyStruct) rentalsKey;
 
+    /* tiene traccia del numero di utenti e del numero di noleggi */
     uint private userNumber;
     uint private rentalNumber;
 
-    // receive address during deployment script
-    constructor(Excentio token) {
-        tokenExc = token;
+    /*  cap e reward servono per il token */
+    constructor(uint256 cap, uint256 reward) {
+        tokenExc = new Excentio(cap,reward);
         userNumber = 0;
         rentalNumber = 0;
     }
+    
+    /* -------------- FINE VARIABILI -------------- */
 
-    event CheckNumber(uint number);
-    
-    event CheckString(string response);
+    /* ------------------ INIZIO PARTE CONTRATTO ------------------ */
 
-    event CheckUser(address indirizzo, uint numeroPiattaforme);
+    function buy() payable public {
+      
+        uint256 amountTobuy = msg.value;
+      
+        uint256 excBalance = tokenExc.balanceOf(address(this));
+        require(amountTobuy > 0, "You need to send some ether");
+        require(amountTobuy <= excBalance, "Not enough tokens in the reserve");
+
+        tokenExc.transfer(msg.sender, amountTobuy);
+
+    }
+
+    function sell(uint256 amount, address to) public {
+        require(amount > 0, "Devi vendere almeno qualche token");
     
-    event CheckPlatform(uint uuid, bool isValid);
+        uint256 allowance = tokenExc.allowance(msg.sender, address(this));
+        require(allowance >= amount, "Verifica l'indennita' del token");
+        tokenExc.transferFrom(msg.sender, to, amount);
+        // payable(msg.sender).transfer(amount); //Capire perché qui fa un transfer
+    }
+
+    function getToken() public view returns(Excentio){
+        return tokenExc;
+    }
     
+    /* ------------------ FINE PARTE CONTRATTO ------------------ */
+
+    
+    /* ------------------ INIZIO PARTE USER ------------------ */
 
     function checkUserExist(address userAddress) internal view returns (bool){
         return usersKey[userAddress].valid;
@@ -255,10 +289,3 @@ contract Idp {
         tokenExc.transfer(to, amount);
     }
 }
-/*
-    da usare su remix:
-    chi ha deployato il contratto: 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4 --> lui ha 7mln di exc
-    indirizzo contratto: 0x3c725134d74D5c45B4E4ABd2e5e2a109b5541288 --> lui può spendere 7mln di exc
-    indirizzo secondo utente: 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2 --> lui ha 0 per il momento
-*/
-
