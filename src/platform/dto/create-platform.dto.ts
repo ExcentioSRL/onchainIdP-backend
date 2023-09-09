@@ -14,8 +14,14 @@ export class CreatePlatformDTO {
     redirectUrl: string;
 
     @ApiProperty({
-        description: 'immagine',
+        description: 'Immagine',
         default: '',
     })
     pathImage: string;
+
+    @ApiProperty({
+        description: 'Descrizione',
+        default: '',
+    })
+    description: string;
 }

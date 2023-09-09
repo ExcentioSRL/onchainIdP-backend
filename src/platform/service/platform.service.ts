@@ -7,6 +7,7 @@ export interface PlatformInterface {
     name: string;
     redirectUrl: string;
     pathImage: string;
+    description: string;
 }
 
 @Injectable()

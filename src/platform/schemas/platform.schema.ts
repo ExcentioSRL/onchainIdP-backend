@@ -4,4 +4,5 @@ export const PlatformSchema = new mongoose.Schema({
     name: String,
     redirectUrl: String,
     pathImage: String,
+    description: String,
 });
