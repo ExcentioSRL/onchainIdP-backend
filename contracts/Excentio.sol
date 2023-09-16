@@ -21,7 +21,7 @@ contract Excentio is ERC20Capped, ERC20Burnable {
         _mint: è il blocco fondamentale che consente di scrivere estensioni ERC20 che implementano un meccanismo di fornitura.
 
         Questo metodo viene riscritto perché ERC20Capped e ERC20Burnable hanno entrambi il metodo _mint.
-        Causa quindi un errore di duplicazione del metodo. Faccio override del metodo nel contratto ERC20Capped 
+        Causa quindi un errore di duplicazione del metodo. Viene fatto override del metodo nel contratto ERC20Capped 
         per poter controllare che non ecceda il limite
     */
     function _mint(address account, uint256 amount) internal virtual override(ERC20Capped, ERC20){
@@ -59,7 +59,7 @@ contract Excentio is ERC20Capped, ERC20Burnable {
     }
 
     modifier onlyOwner{
-        require(msg.sender == owner, "Only the owner can call this functin");
+        require(msg.sender == owner, "Only the owner can call this function");
         _; //significa che deve prima leggere la linea sopra e poi il resto della funzione, viene applicato come "guard"
     }
 }

@@ -76,22 +76,18 @@ contract Idp {
     /* userData è un'array dinamico di utenti che restituisce i dati di ogni utente presente nell'array */
     mapping (uint => UserData) userData;
 
-    /* rentalsData: è un'array dinamico di noleggi e restituisce tutti i dati del noleggio dato l'id di una transazione */
-    mapping (uint => RentalStruct) rentalsData;
-
     mapping(address => KeyStruct) usersKey;
    
     mapping(address => KeyStruct) rentalsKey;
 
     /* tiene traccia del numero di utenti e del numero di noleggi */
     uint private userNumber;
-    uint private rentalNumber;
+ 
 
     /*  cap e reward servono per il token */
     constructor(uint256 cap, uint256 reward) {
         tokenExc = new Excentio(cap,reward);
         userNumber = 0;
-        rentalNumber = 0;
     }
     
     /* -------------- FINE VARIABILI -------------- */
@@ -103,20 +99,20 @@ contract Idp {
         uint256 amountTobuy = msg.value;
       
         uint256 excBalance = tokenExc.balanceOf(address(this));
-        require(amountTobuy > 0, "You need to send some ether");
+        require(amountTobuy > 0, "You need to send some excentio");
         require(amountTobuy <= excBalance, "Not enough tokens in the reserve");
 
         tokenExc.transfer(msg.sender, amountTobuy);
 
     }
 
-    function sell(uint256 amount, address to) public {
+    function sell(uint256 amount) public {
         require(amount > 0, "Devi vendere almeno qualche token");
     
         uint256 allowance = tokenExc.allowance(msg.sender, address(this));
-        require(allowance >= amount, "Verifica l'indennita' del token");
-        tokenExc.transferFrom(msg.sender, to, amount);
-        // payable(msg.sender).transfer(amount); //Capire perché qui fa un transfer
+        require(allowance >= amount, "Fondi insufficienti");
+        tokenExc.transferFrom(msg.sender, address(this), amount);
+        payable(msg.sender).transfer(amount);
     }
 
     function getToken() public view returns(Excentio){
@@ -207,7 +203,7 @@ contract Idp {
 		return result;
     }
 
-    /* Ritorna tutti gli utenti nella chain */
+    
     function getPrivateUserData() public view returns(PrivateUserData[] memory){ 
         PrivateUserData[] memory result = new PrivateUserData[](userNumber);
 
@@ -228,11 +224,30 @@ contract Idp {
 		return result;
     }
 
+    function getPrivateUserDataById(address user) public view returns(PrivateUserData[] memory){ 
+        PrivateUserData[] memory result = new PrivateUserData[](1);
+        
+        uint index = getUserKey(user);
+		
+		result[0].platforms = new PlatformStruct[](userData[index].platformNumber);
+		result[0].userAddr = userData[index].userAddr;
+        result[0].rentals = new RentalStruct[](userData[index].rentalsNumber);
+                
+        for(uint i = 0; i < userData[index].platformNumber; i++){
+            result[0].platforms[i] = userData[index].platforms[i];
+        }
+               
+        for(uint i = 0; i < userData[index].rentalsNumber; i++){
+            result[0].rentals[i] = userData[index].rentals[i];
+        }
+
+		return result;
+    }
+
     /* ------------------ FINE PARTE USER ------------------ */
 
     /* ------------------ INIZIO PARTE NOLEGGIO ------------------ */
 
-  
     function addRentToUser(RentalStruct memory rent, uint userKey) internal {
         uint rentalNumberUserData = userData[userKey].rentalsNumber;
         userData[userKey].rentalsNumber++;
@@ -245,6 +260,10 @@ contract Idp {
         require(checkUserExist(hirer) == true, "Non esisti, devi prima aggiungerti");
         require(checkUserPlatform(renter,platformId) == true, "Piattaforma non associata all'utente");
         require(tokenExc.balanceOf(hirer) >= amount, "La tua balance non copre il costo del noleggio");
+
+        bool result = tokenExc.transferFrom(hirer,renter, amount);
+
+        require(result == true, "Trasferimento fondi non andato a buon fine, il noleggio non e' stato approvato");
 
         uint renterKey = getUserKey(renter);
         uint hirerKey = getUserKey(hirer);
@@ -269,23 +288,4 @@ contract Idp {
 
     /* ------------------ FINE PARTE NOLEGGIO ------------------ */
 
-    function balance(address account) public view returns(uint){
-        return tokenExc.balanceOf(account);
-    }
-
-    function approva(address account, uint amount) public {
-         tokenExc.approve(account, amount);
-    }
-
-    function increase(address account, uint amount) public {
-        tokenExc.increaseAllowance(account, amount);
-    }
-
-    function transferFrom(address from, address to, uint amount) public {
-        tokenExc.transferFrom(from, to, amount);
-   }
-
-    function transfer(address to, uint amount) public {
-        tokenExc.transfer(to, amount);
-    }
 }
