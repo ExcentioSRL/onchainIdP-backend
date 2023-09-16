@@ -121,7 +121,7 @@ describe('Excentio contract', function () {
             .connect(addr2)
             .approve(await dexAddr.getAddress(), tokensAmount);
 
-        await dexAddr.connect(addr2).sell(tokensAmount, addr1);
+        await dexAddr.connect(addr2).sell(tokensAmount);
 
         let balanceAddr2 = await dexAddr.balance(addr2);
         console.log('balance addr2: ' + balanceAddr2);

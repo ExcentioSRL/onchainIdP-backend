@@ -121,9 +121,7 @@ describe('Excentio contract', function () {
                 .connect(addr2)
                 .approve(await idpAddress.getAddress(), tokensAmount);
 
-            await idpAddress
-                .connect(addr2)
-                .sell(tokensAmount, await idpAddress.getAddress());
+            await idpAddress.connect(addr2).sell(tokensAmount);
 
             let balanceAddr2 = await tokenAddress.balanceOf(addr2);
             expect(Number(hre.ethers.formatEther(balanceAddr2))).to.equal(0);
