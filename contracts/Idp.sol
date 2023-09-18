@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.19;
 
 import "./Excentio.sol";
 
@@ -25,12 +25,21 @@ contract Idp {
     event CheckUser(address indirizzo, uint numeroPiattaforme);
     
     event CheckPlatform(uint uuid, bool isValid);
+
+    event CheckValue(uint key, bool isValid);
+
+    event CheckRent(RentalStruct r);
       
     /* ------------- FINE EVENTI PER DEBUG ------------ */
 
 
     /* -------------- INIZIO  VARIABILI -------------- */
     Excentio private tokenExc;
+
+    struct KeyStruct{
+        uint key;
+        bool valid;
+    }
 
     struct PlatformStruct{
         string uuid;
@@ -42,19 +51,22 @@ contract Idp {
         string transactionId;
         address renter; /* chi cede il suo account */
         address hirer; /* chi noleggia l'account di un altro */
-        uint startDate;
-        uint endDate;
+        uint start;
+        uint end;
         uint amount;
         string platformId;
+        uint timestamp;
     }
 
     struct UserData{
         address userAddr;
         uint platformNumber;
         uint rentalsNumber;
+        uint allRentalsNumber;
         mapping(uint => PlatformStruct) platforms;
         mapping(string => KeyStruct) platformsKey;
-        mapping(uint => RentalStruct) rentals;
+        mapping(uint => RentalStruct[]) rentals;
+        mapping(uint => KeyStruct) rentalsKey;
     }
 
     struct GlobalUserData{
@@ -67,11 +79,7 @@ contract Idp {
         PlatformStruct[] platforms;
         RentalStruct[] rentals;
     }
-
-    struct KeyStruct{
-        uint key;
-        bool valid;
-    }
+   
 
     /* userData è un'array dinamico di utenti che restituisce i dati di ogni utente presente nell'array */
     mapping (uint => UserData) userData;
@@ -183,46 +191,13 @@ contract Idp {
         userData[userNumber].userAddr = userAddress;
         userData[userNumber].platformNumber = 0;
         userData[userNumber].rentalsNumber = 0;
+        userData[userNumber].allRentalsNumber = 0;
         userNumber++;
     }
 
-    /* Ritorna tutti gli utenti nella chain */
-    function getUserData() public view returns(GlobalUserData[] memory){ 
-        GlobalUserData[] memory result = new GlobalUserData[](userNumber);
+ 
 
-        uint resultIndex = 0;
-		for (uint index = 0; index < userNumber; index++) {
-		        result[resultIndex].platforms = new PlatformStruct[](userData[index].platformNumber);
-				result[resultIndex].userAddr = userData[index].userAddr;
-                for(uint i = 0; i < userData[index].platformNumber; i++){
-                    result[resultIndex].platforms[i] = userData[index].platforms[i];
-                }
-            resultIndex++;
-		}
 
-		return result;
-    }
-
-    
-    function getPrivateUserData() public view returns(PrivateUserData[] memory){ 
-        PrivateUserData[] memory result = new PrivateUserData[](userNumber);
-
-		for (uint index = 0; index < userNumber; index++) {
-		        result[index].platforms = new PlatformStruct[](userData[index].platformNumber);
-				result[index].userAddr = userData[index].userAddr;
-                result[index].rentals = new RentalStruct[](userData[index].rentalsNumber);
-                
-                for(uint i = 0; i < userData[index].platformNumber; i++){
-                    result[index].platforms[i] = userData[index].platforms[i];
-                }
-               
-                for(uint i = 0; i < userData[index].rentalsNumber; i++){
-                    result[index].rentals[i] = userData[index].rentals[i];
-                }
-		}
-
-		return result;
-    }
 
     function getPrivateUserDataById(address user) public view returns(PrivateUserData[] memory){ 
         PrivateUserData[] memory result = new PrivateUserData[](1);
@@ -231,16 +206,25 @@ contract Idp {
 		
 		result[0].platforms = new PlatformStruct[](userData[index].platformNumber);
 		result[0].userAddr = userData[index].userAddr;
-        result[0].rentals = new RentalStruct[](userData[index].rentalsNumber);
-                
+        result[0].rentals = new RentalStruct[](userData[index].allRentalsNumber);
+
+
         for(uint i = 0; i < userData[index].platformNumber; i++){
             result[0].platforms[i] = userData[index].platforms[i];
         }
                
-        for(uint i = 0; i < userData[index].rentalsNumber; i++){
-            result[0].rentals[i] = userData[index].rentals[i];
-        }
 
+        result[0].rentals = new RentalStruct[](userData[index].allRentalsNumber);
+      
+        uint j = 0;
+        for(uint i = 0; i < userData[index].rentalsNumber; i++){
+            uint totRent = userData[index].rentals[i].length;
+            for(uint k = 0; k < totRent; k++){
+                result[0].rentals[j] = userData[index].rentals[i][k];
+                j++;
+            }
+        }
+        
 		return result;
     }
 
@@ -248,13 +232,25 @@ contract Idp {
 
     /* ------------------ INIZIO PARTE NOLEGGIO ------------------ */
 
-    function addRentToUser(RentalStruct memory rent, uint userKey) internal {
-        uint rentalNumberUserData = userData[userKey].rentalsNumber;
-        userData[userKey].rentalsNumber++;
-        userData[userKey].rentals[rentalNumberUserData] = rent;
+
+    function addRentToUser(RentalStruct memory newRent, uint timestamp, uint userKey)  internal {
+        KeyStruct memory rent = userData[userKey].rentalsKey[timestamp];
+        
+        if(rent.valid == false){
+            rent.key = userData[userKey].rentalsNumber;
+            rent.valid = true;
+            userData[userKey].rentalsNumber++;
+        }
+
+        userData[userKey].rentals[rent.key].push(newRent);
+        userData[userKey].allRentalsNumber++;
+        
+
+       
     }
 
-    function addRent(string memory transactionId, address renter, address hirer, uint startDate, uint endDate, uint amount, string memory platformId) public   {
+
+    function addRent(string memory transactionId, address renter, address hirer, uint startDate, uint endDate, uint amount, string memory platformId, uint timestamp) public   {
         require(endDate > startDate,"La data di fine noleggio e' prima dell'inizio del noleggio");
         require(checkUserExist(renter) == true, "L'utente non esistente");
         require(checkUserExist(hirer) == true, "Non esisti, devi prima aggiungerti");
@@ -275,14 +271,15 @@ contract Idp {
             transactionId: transactionId,
             renter: renter, 
             hirer: hirer, 
-            startDate: startDate,
-            endDate: endDate,
+            start: startDate,
+            end: endDate,
             amount: amount,
-            platformId: platformId
+            platformId: platformId,
+            timestamp: timestamp
         });
 
-        addRentToUser(rent, hirerKey);
-        addRentToUser(rent, renterKey);
+        addRentToUser(rent, timestamp, hirerKey);
+        addRentToUser(rent, timestamp, renterKey);
 
     }
 
