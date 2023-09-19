@@ -323,10 +323,14 @@ contract Idp {
     }
 
     function addRent(string memory transactionId, address renter, address hirer, uint startDate, uint endDate, uint amount, string memory platformId, uint timestamp) public   {
+        require(checkUserExist(renter) == true, "L'utente non esiste");
+        require(checkUserExist(hirer) == true, "Non esisti, devi prima aggiungerti");
+        require(endDate > startDate,"La data di fine noleggio e' prima dell'inizio del noleggio");
+        require(checkUserPlatform(renter,platformId) == true, "Piattaforma non associata all'utente");
+        require(renter != hirer, "Non puoi noleggiare da te stesso");
         
         uint renterKey = getUserKey(renter);
         uint hirerKey = getUserKey(hirer);
- 
         require(renter == userData[renterKey].userAddr, "l'indirizzo dello user passato non corrisponde a quello salvato");
         require(hirer == userData[hirerKey].userAddr, "l'indirizzo dello user passato non corrisponde a quello salvato");
 
@@ -346,17 +350,10 @@ contract Idp {
         
         require(validRenter == true, "Non e' possibile effettuare il noleggio");
         require(validHirer == true, "Non e' possibile effettuare il noleggio");
-
-        require(endDate > startDate,"La data di fine noleggio e' prima dell'inizio del noleggio");
-        require(checkUserExist(renter) == true, "L'utente non esistente");
-        require(checkUserExist(hirer) == true, "Non esisti, devi prima aggiungerti");
-        require(checkUserPlatform(renter,platformId) == true, "Piattaforma non associata all'utente");
-        require(renter != hirer, "Non puoi noleggiare da te stesso");
         
         require(tokenExc.balanceOf(hirer) >= amount, "La tua balance non copre il costo del noleggio");
         bool result = tokenExc.transferFrom(hirer,renter, amount);
         require(result == true, "Trasferimento fondi non andato a buon fine, il noleggio non e' stato approvato");
-
 
         addRentToUser(newRent, timestamp, hirerKey);
         addRentToUser(newRent, timestamp, renterKey);
