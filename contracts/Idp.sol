@@ -145,9 +145,8 @@ contract Idp {
         return usersKey[userAddress].key;
     }
 
-    /* restituisce la chiave dell'utente */
-    function getPlatformKey(uint userNumberInput, string memory idPlatform) internal view returns (uint){
-        return userData[userNumberInput].platformsKey[idPlatform].key;
+    function getPlatformValidity(uint userNumberInput, string memory idPlatform) internal view returns ( bool){
+       return userData[userNumberInput].platformsKey[idPlatform].valid;   
     }
 
     /*  
@@ -156,8 +155,7 @@ contract Idp {
     */
     function checkUserPlatform(address userAddress, string memory idPlatform) public view returns (bool){
         uint userNumberInput = getUserKey(userAddress);
-        uint platformKey = getPlatformKey(userNumberInput, idPlatform);
-        return (userData[userNumberInput].platforms[platformKey].isValid);
+        return getPlatformValidity(userNumberInput, idPlatform);
     }
 
     /* Aggiunge l'id di una piattaforma all'array delle piattaforme dell'utente */
@@ -254,33 +252,63 @@ contract Idp {
 
     /* ------------------ INIZIO PARTE NOLEGGIO ------------------ */
 
-    function isSlotBusy (uint time, uint sd, uint ed) internal pure returns(bool){
+     function isSlotBusy (uint time, uint sd, uint ed) internal pure returns(bool){
         if (time >= sd){
             if(time <= ed)
-                return false;
+                return true;
             else
-                return true;     
+                return false;     
         }
-        else  return true;
+        else return false;
     }
 
-    function checkRent(uint timestamp, uint time, address userAddress) public view returns(bool) {
+   function checkRent(uint timestamp, uint time, address userAddress, string memory platformId) public view returns(bool){
         uint userKey = getUserKey(userAddress);
 
-    
-        if(userData[userKey].rentalsKey[timestamp].valid == false)
-            return true;
+        //renter 0
+        //hirer: 1
+        uint userType = 1;
+
+        if(checkUserPlatform(userAddress, platformId) == true)
+            userType = 0;
+
+        if(userData[userKey].rentalsKey[timestamp].valid == false){
+            if(userType == 0)
+                return true;
+            else return false;
+        }
         
         uint rentalKey = userData[userKey].rentalsKey[timestamp].key;
 
         uint length = userData[userKey].rentals[rentalKey].length;
 
+        RentalStruct memory rent;
         for(uint i = 0; i < length; i++){
-            bool value = isSlotBusy(time,userData[userKey].rentals[rentalKey][i].start,userData[userKey].rentals[rentalKey][i].end);
-            require(value == true, "Al momento il tuo account e' noleggiato, non puoi accederci") ;
+                if(userData[userKey].rentals[rentalKey][i].start <= time && 
+                    userData[userKey].rentals[rentalKey][i].end >= time && 
+                    keccak256(abi.encodePacked(userData[userKey].rentals[rentalKey][i].platformId)) == keccak256(abi.encodePacked(platformId)) )
+                        rent = userData[userKey].rentals[rentalKey][i];
         }
 
-        return true;
+        if(userType == 0){
+            // controllo che il renter, chi cede l'account, sia effettivamente lui
+            // dopodiché controllo che lo slot è occupato, 
+            // se è occupato lancio l'eccezione atrimenti restituisce true per indicare che il proprietario della piattaforma
+            // può accedere
+            if(rent.renter == userAddress){
+                bool value = isSlotBusy(time, rent.start, rent.end);
+                require(value == false, "Al momento il tuo account e' noleggiato, non puoi accederci");
+                return true; 
+            }
+            else return true;
+        }
+        else {
+            //ritorna true, vuol dire che il noleggio è iniziato
+            if(rent.hirer == userAddress)
+                return true;
+            else return false;
+        }
+
     }
 
     function isSlotAvailable (uint isd, uint ied, uint sd, uint ed) internal pure returns(bool){
@@ -327,6 +355,7 @@ contract Idp {
         require(checkUserExist(hirer) == true, "Non esisti, devi prima aggiungerti");
         require(endDate > startDate,"La data di fine noleggio e' prima dell'inizio del noleggio");
         require(checkUserPlatform(renter,platformId) == true, "Piattaforma non associata all'utente");
+        require(checkUserPlatform(hirer,platformId) == false, "Non puoi noleggiare un account di una piattaforma che hai");
         require(renter != hirer, "Non puoi noleggiare da te stesso");
         
         uint renterKey = getUserKey(renter);
@@ -355,8 +384,8 @@ contract Idp {
         bool result = tokenExc.transferFrom(hirer,renter, amount);
         require(result == true, "Trasferimento fondi non andato a buon fine, il noleggio non e' stato approvato");
 
-        addRentToUser(newRent, timestamp, hirerKey);
         addRentToUser(newRent, timestamp, renterKey);
+        addRentToUser(newRent, timestamp, hirerKey);
 
     }
 
