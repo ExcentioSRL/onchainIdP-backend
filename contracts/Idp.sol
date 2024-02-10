@@ -73,10 +73,6 @@ contract Idp {
         mapping(uint => KeyStruct) rentalsKey;
     }
 
-    struct GlobalUserData{
-        address userAddr;
-        PlatformStruct[] platforms;
-    }
 
     struct PrivateUserData{
         address userAddr;
@@ -90,8 +86,6 @@ contract Idp {
 
     mapping(address => KeyStruct) usersKey;
    
-    mapping(address => KeyStruct) rentalsKey;
-
     /* tiene traccia del numero di utenti e del numero di noleggi */
     uint private userNumber;
  

@@ -1,8 +1,17 @@
-import * as mongoose from 'mongoose';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { HydratedDocument } from "mongoose";
 
-export const PlatformSchema = new mongoose.Schema({
-    name: String,
-    redirectUrl: String,
-    pathImage: String,
-    description: String,
-});
+export type PlatformDocument = HydratedDocument<Platform>;
+
+@Schema()
+export class Platform {
+    @Prop()
+    name: string;
+    @Prop()
+    redirectUrl: string;
+    @Prop()
+    pathImage: string;
+    @Prop()
+    description: string;
+}
+export const PlatformSchema = SchemaFactory.createForClass(Platform);
